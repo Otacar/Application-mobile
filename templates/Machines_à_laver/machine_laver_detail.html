@@ -1,0 +1,57 @@
+{%extends 'base.html'%}
+{% block content %}
+  <h1>{{ machine.nom }}</h1>
+
+  {% if reserve %}
+    <p>Debut de l'utisation : {{ machine.debut_utilisation }}</p>
+    <p>Compte à rebours : <span id="compte-a-rebours">{{ compte_a_rebours }}</span></p>
+  {% else %}
+    <p>Compte à rebours : 0h:00mn:0s</p>
+    <a id="reserver-machine" class="btn btn-success" href="/api/machines/{{ machine.id }}/reserver/">Réserver</button>
+  {% endif %}
+<script>
+  //Decremente le compte à rebours chaque seconde
+  var compte_a_rebours = document.getElementById('compte-a-rebours');
+  //Si le compte à rebours est à 0h:00mn:0s, on rafrachit la page
+  if (compte_a_rebours.innerHTML == '0:00:0') {
+    window.location.reload();
+  }
+
+  var compte_a_rebours = setInterval(function() {
+    var compte_a_rebours = document.getElementById('compte-a-rebours');
+    var compte_a_rebours = compte_a_rebours.innerHTML;
+    var compte_a_rebours = compte_a_rebours.split(':');
+    var secondes = compte_a_rebours[2];
+    var minutes = compte_a_rebours[1];
+    var heures = compte_a_rebours[0];
+    secondes--;
+    if (secondes < 0) {
+      secondes = 59;
+      minutes--;
+      if (minutes < 0) {
+        minutes = 59;
+        heures--;
+        if (heures < 0) {
+          heures = 0;
+          minutes = 0;
+          secondes = 0;
+          clearInterval(compte_a_rebours);
+        }
+      }
+    }
+    if (secondes < 10 && secondes[0] != '0') {
+      secondes = '0' + secondes;
+    }
+    //Si les ùinutes sont inférieures à 10 et il n'y a pas de 0 devant, on ajoute un 0 devant
+    if (minutes < 10 && minutes[0] != '0') {
+      minutes = '0' + minutes;
+    }
+    if (heures < 10 && heures[0] != '0') {
+      heures = heures;
+    }
+    document.getElementById('compte-a-rebours').innerHTML = heures + ':' + minutes + ':' + secondes;
+  }, 1000);
+</script>
+
+
+{% endblock %}
